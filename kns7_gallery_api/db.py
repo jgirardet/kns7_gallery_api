@@ -4,38 +4,11 @@ import sys
 from pony.orm import Database, Required, Optional, PrimaryKey, db_session
 from datetime import datetime, date
 
+from utils import DicoMixin
 
 db = Database()
 
 
-
-from datetime import datetime, date
-
-class DicoMixin:
-
-    @property
-    def dico(self) -> dict:
-        """
-        Transforme un dict en dict serializable.
-        Marche pour:
-            *object datetime
-            *object date
-        Args:
-            dico: le dict à transformer
-        Returns:
-            un nouveau dict.
-        """
-        new_dict = {}
-
-        for k, v in self.to_dict().items():
-            if isinstance(v, datetime):
-                new_dict[k] = v.isoformat()
-
-            elif isinstance(v, date):
-                new_dict[k] = v.isoformat()
-            else:
-                new_dict[k] = v
-        return new_dict
 
 class Album(db.Entity, DicoMixin):
     _table_ = "albums"
@@ -60,13 +33,6 @@ db.bind(provider="mysql", host="localhost", user="k", passwd="k", db="knss")
 db.generate_mapping(create_tables=True)
 
 
-@db_session
-def test():
-    for i in Album.select()[:]:
-        print(i.to_dict())
-
-
-test()
 
 from starlette.applications import Starlette
 from starlette.responses import JSONResponse
